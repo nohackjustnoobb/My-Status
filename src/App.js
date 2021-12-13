@@ -1,33 +1,11 @@
 import "./App.css";
 import React from "react";
 import Icon from "@mdi/react";
-import {
-  mdiMenu,
-  mdiCloseCircleOutline,
-  mdiCameraFlipOutline,
-  mdiHeart,
-  mdiLightningBolt,
-  mdiFoodDrumstick,
-  mdiSleep,
-  mdiSkullCrossbones,
-  mdiWater,
-  mdiCash,
-  mdiAccountGroup,
-  mdiEmoticon,
-} from "@mdi/js";
+import { mdiMenu, mdiCloseCircleOutline, mdiCameraFlipOutline } from "@mdi/js";
 import ProgressBar from "progressbar.js";
 
-const icons = {
-  Heart: mdiHeart,
-  "Lightning Bolt": mdiLightningBolt,
-  "Food Drumstick": mdiFoodDrumstick,
-  Sleep: mdiSleep,
-  "Skull Crossbones": mdiSkullCrossbones,
-  Water: mdiWater,
-  Cash: mdiCash,
-  "Account Group": mdiAccountGroup,
-  Emoticon: mdiEmoticon,
-};
+import { version, name } from "../package.json";
+import icons from "./icons";
 
 var roundX = function (val, precision) {
   return (
@@ -445,7 +423,7 @@ class Controller extends React.Component {
                 >
                   <p>
                     <a href="https://github.com/nohackjustnoobb/My-Status">
-                      My-Status Ver 0.1.1
+                      {name} Ver {version}
                     </a>
                     <br />
                     nohackjustnoobb@github.com
