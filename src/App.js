@@ -152,6 +152,7 @@ class StatusList {
             value={v.name}
             onChange={(e) => {
               v.name = e.target.value;
+              this.save();
               this.forceUpdate();
             }}
           />
@@ -167,6 +168,7 @@ class StatusList {
                 value={v.progress * 100}
                 onChange={(e) => {
                   v.progress = Number(e.target.value) / 100;
+                  this.save();
                   this.forceUpdate();
                 }}
               />
@@ -179,6 +181,7 @@ class StatusList {
                   var value = Number(e.target.value);
                   v.progress =
                     (value > 100 ? 100 : value < 0 ? 0 : value) / 100;
+                  this.save();
                   this.forceUpdate();
                 }}
               />
@@ -191,6 +194,7 @@ class StatusList {
               value={v.color}
               onChange={(e) => {
                 v.color = e.target.value;
+                this.save();
                 this.forceUpdate();
               }}
             />
@@ -206,6 +210,7 @@ class StatusList {
               <select
                 onChange={(e) => {
                   v.icon = e.target.value;
+                  this.save();
                   this.forceUpdate();
                 }}
               >
