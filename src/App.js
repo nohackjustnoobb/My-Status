@@ -12,6 +12,8 @@ import {
   mdiSkullCrossbones,
   mdiWater,
   mdiCash,
+  mdiAccountGroup,
+  mdiEmoticon,
 } from "@mdi/js";
 import ProgressBar from "progressbar.js";
 
@@ -23,6 +25,8 @@ const icons = {
   "Skull Crossbones": mdiSkullCrossbones,
   Water: mdiWater,
   Cash: mdiCash,
+  "Account Group": mdiAccountGroup,
+  Emoticon: mdiEmoticon,
 };
 
 var roundX = function (val, precision) {
@@ -138,7 +142,7 @@ class StatusList {
     this.statusList.forEach((v) => v.updateBar());
   }
 
-  getOptionsDiv(forceUpdate) {
+  getOptionsDiv() {
     return this.statusList.map((v) => (
       <li style={{ width: "100%" }}>
         <div className={"inputGroup"} style={{ fontWeight: "bold" }}>
@@ -163,8 +167,7 @@ class StatusList {
                 value={v.progress * 100}
                 onChange={(e) => {
                   v.progress = Number(e.target.value) / 100;
-                  forceUpdate();
-                  this.update();
+                  this.forceUpdate();
                 }}
               />
               <input
@@ -176,8 +179,7 @@ class StatusList {
                   var value = Number(e.target.value);
                   v.progress =
                     (value > 100 ? 100 : value < 0 ? 0 : value) / 100;
-                  forceUpdate();
-                  this.update();
+                  this.forceUpdate();
                 }}
               />
             </div>
@@ -393,9 +395,7 @@ class Controller extends React.Component {
                       flexDirection: "column",
                     }}
                   >
-                    {this.props.statusList.getOptionsDiv(
-                      this.forceUpdate.bind(this)
-                    )}
+                    {this.props.statusList.getOptionsDiv()}
                   </ul>
                 </li>
                 <li>
@@ -440,7 +440,7 @@ class Controller extends React.Component {
                 >
                   <p>
                     <a href="https://github.com/nohackjustnoobb/My-Status">
-                      My-Status Ver 1.0
+                      My-Status Ver 0.1.1
                     </a>
                     <br />
                     nohackjustnoobb@github.com
