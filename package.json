@@ -1,6 +1,6 @@
 {
   "name": "My-Status",
-  "version": "0.1.2",
+  "version": "0.2.2",
   "private": true,
   "dependencies": {
     "@mdi/js": "^6.5.95",

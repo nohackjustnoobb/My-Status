@@ -77,15 +77,11 @@ svg {
 
 #statusList {
   position: fixed;
-  left: 20px;
-  top: env(safe-area-inset-top);
-  background-color: #00000044;
   backdrop-filter: blur(10px);
   padding: 10px;
   border-radius: 20px;
-  overflow: hidden;
   padding-bottom: 0;
-  transform-origin: 0 0;
+  width: fit-content;
 }
 
 #optionsContent {

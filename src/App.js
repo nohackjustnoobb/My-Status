@@ -1,7 +1,14 @@
 import "./App.css";
 import React from "react";
 import Icon from "@mdi/react";
-import { mdiMenu, mdiCloseCircleOutline, mdiCameraFlipOutline } from "@mdi/js";
+import {
+  mdiMenu,
+  mdiCloseCircleOutline,
+  mdiCameraFlipOutline,
+  mdiMagnifyPlusOutline,
+  mdiMagnifyMinusOutline,
+  mdiBackupRestore,
+} from "@mdi/js";
 import ProgressBar from "progressbar.js";
 
 import { version, name } from "../package.json";
@@ -186,6 +193,7 @@ class StatusList {
                 style={{ marginRight: 5 }}
               />
               <select
+                value={v.icon}
                 onChange={(e) => {
                   v.icon = e.target.value;
                   this.save();
@@ -254,6 +262,25 @@ class Controller extends React.Component {
     }
   }
 
+  splitLine() {
+    return (
+      <li>
+        <div
+          style={{
+            height: 2,
+            borderRadius: 1,
+            width: "90%",
+            backgroundColor: "plum",
+            opacity: 0.4,
+            position: "relative",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        />
+      </li>
+    );
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -315,7 +342,7 @@ class Controller extends React.Component {
             <div id="optionsContent">
               <ul>
                 <li>
-                  Background Image:
+                  <b>Use Image:</b>
                   <br />
                   <div
                     style={{ display: "flex", justifyContent: "space-between" }}
@@ -342,7 +369,7 @@ class Controller extends React.Component {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <div>
-                    Use Camera:{" "}
+                    <b>Use Camera: </b>
                     <input
                       type="checkbox"
                       onChange={() => this.props.toggleCamera()}
@@ -356,20 +383,179 @@ class Controller extends React.Component {
                     onClick={this.props.switchCamera}
                   />
                 </li>
+                {this.splitLine()}
                 <li>
+                  <b>Position:</b>
+                  <br />
                   <div
-                    style={{
-                      height: 2,
-                      borderRadius: 1,
-                      width: "90%",
-                      backgroundColor: "plum",
-                      opacity: 0.4,
-                      position: "relative",
-                      left: "50%",
-                      transform: "translateX(-50%)",
+                    style={{ display: "flex", justifyContent: "space-around" }}
+                  >
+                    <div>
+                      horizontal:{" "}
+                      <select
+                        value={this.props.horizontal}
+                        onChange={(e) => {
+                          this.props.setState({
+                            horizontal: Number(e.target.value),
+                          });
+                          window.localStorage.setItem(
+                            "horizontal",
+                            e.target.value
+                          );
+                        }}
+                      >
+                        <option value={0}>Left</option>
+                        <option value={1}>Center</option>
+                        <option value={2}>Right</option>
+                      </select>
+                    </div>
+                    <div>
+                      vertical:{" "}
+                      <select
+                        value={this.props.vertical}
+                        onChange={(e) => {
+                          this.props.setState({
+                            vertical: Number(e.target.value),
+                          });
+                          window.localStorage.setItem(
+                            "vertical",
+                            e.target.value
+                          );
+                        }}
+                      >
+                        <option value={0}>Top</option>
+                        <option value={1}>Center</option>
+                        <option value={2}>Bottom</option>
+                      </select>
+                    </div>
+                  </div>
+                </li>
+                <li
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <b>Size: x{this.props.scale}</b>
+                  </div>
+                  <div>
+                    <Icon
+                      path={mdiMagnifyMinusOutline}
+                      size={1.25}
+                      style={{ marginRight: 5 }}
+                      color={this.props.scale > 0.5 ? "plum" : "Grey"}
+                      onClick={() => {
+                        if (this.props.scale > 0.5) {
+                          this.props.setState({
+                            scale: this.props.scale - 0.25,
+                          });
+                          window.localStorage.setItem(
+                            "scale",
+                            this.props.scale - 0.25
+                          );
+                        }
+                      }}
+                    />
+                    <Icon
+                      path={mdiBackupRestore}
+                      size={1.25}
+                      color="plum"
+                      style={{ marginRight: 5 }}
+                      onClick={() => {
+                        var defaultScale =
+                          window.innerHeight > window.innerWidth ? 0.75 : 1;
+                        this.props.setState({
+                          scale: defaultScale,
+                        });
+                        window.localStorage.setItem("scale", defaultScale);
+                      }}
+                    />
+                    <Icon
+                      path={mdiMagnifyPlusOutline}
+                      size={1.25}
+                      color={this.props.scale < 2 ? "plum" : "Grey"}
+                      onClick={() => {
+                        if (this.props.scale < 2) {
+                          this.props.setState({
+                            scale: this.props.scale + 0.25,
+                          });
+                          window.localStorage.setItem(
+                            "scale",
+                            this.props.scale + 0.25
+                          );
+                        }
+                      }}
+                    />
+                  </div>
+                </li>
+                <li
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <b>Background Color:</b>
+                  <input
+                    type={"color"}
+                    value={this.props.backgroundColor}
+                    onChange={(e) => {
+                      this.props.setState({ backgroundColor: e.target.value });
+                      window.localStorage.setItem(
+                        "backgroundColor",
+                        e.target.value
+                      );
                     }}
                   />
                 </li>
+                <li
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <b>Background Transparency:</b>
+                  <div className={"inputGroup"}>
+                    <input
+                      type={"range"}
+                      min={0}
+                      max={100}
+                      value={this.props.backgroundTransparency}
+                      onChange={(e) => {
+                        var value = Number(e.target.value);
+                        this.props.setState({
+                          backgroundTransparency: value,
+                        });
+                        window.localStorage.setItem(
+                          "backgroundTransparency",
+                          value
+                        );
+                      }}
+                    />
+                    <input
+                      type={"number"}
+                      min={0}
+                      max={100}
+                      value={this.props.backgroundTransparency}
+                      onChange={(e) => {
+                        var value = Number(e.target.value);
+                        if (value <= 100 && value >= 0) {
+                          this.props.setState({
+                            backgroundTransparency: value,
+                          });
+                          window.localStorage.setItem(
+                            "backgroundTransparency",
+                            value
+                          );
+                        }
+                      }}
+                    />
+                  </div>
+                </li>
+                {this.splitLine()}
                 <li>
                   <ul
                     style={{
@@ -381,20 +567,7 @@ class Controller extends React.Component {
                     {this.props.statusList.getOptionsDiv()}
                   </ul>
                 </li>
-                <li>
-                  <div
-                    style={{
-                      height: 2,
-                      borderRadius: 1,
-                      width: "90%",
-                      backgroundColor: "plum",
-                      opacity: 0.4,
-                      position: "relative",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                    }}
-                  />
-                </li>
+                {this.splitLine()}
                 <li>
                   <div
                     style={{
@@ -443,8 +616,31 @@ class App extends React.Component {
     super(props);
     this.faceEnv = true;
     this.statusList = new StatusList(this.forceUpdate.bind(this));
+    var scale = Number(window.localStorage.getItem("scale"));
+    var horizontal = Number(window.localStorage.getItem("horizontal"));
+    var vertical = Number(window.localStorage.getItem("vertical"));
+    var backgroundColor = window.localStorage.getItem("backgroundColor");
+    var backgroundTransparency = Number(
+      window.localStorage.getItem("backgroundTransparency")
+    );
+
     this.state = {
       useCamera: false,
+      scale: scale ? scale : window.innerHeight > window.innerWidth ? 0.75 : 1,
+      // horizontal
+      // 0: Left
+      // 1: Center
+      // 2: Right
+      horizontal: horizontal ? horizontal : 0,
+      // vertical
+      // 0: Top
+      // 1: Center
+      // 2: Bottom
+      vertical: vertical ? vertical : 0,
+      backgroundColor: backgroundColor ? backgroundColor : "#000000",
+      backgroundTransparency: backgroundTransparency
+        ? backgroundTransparency
+        : 33,
     };
   }
 
@@ -490,8 +686,62 @@ class App extends React.Component {
   render() {
     var isHorizontal = window.innerHeight > window.innerWidth;
 
+    var horizontalStyle, verticalStyle, transformOriginStyle;
+
+    switch (this.state.horizontal) {
+      case 0:
+        horizontalStyle = { left: 20 };
+        transformOriginStyle = "0%";
+        break;
+      case 1:
+        horizontalStyle = {
+          left: "50%",
+          transform: "translateX(-50%)",
+        };
+        transformOriginStyle = "50%";
+        break;
+      case 2:
+        horizontalStyle = { right: 20 };
+        transformOriginStyle = "100%";
+        break;
+      default:
+        horizontalStyle = {};
+        break;
+    }
+
+    transformOriginStyle += " ";
+
+    switch (this.state.vertical) {
+      case 0:
+        verticalStyle = { top: "env(safe-area-inset-top)" };
+        transformOriginStyle += "0%";
+        break;
+      case 1:
+        verticalStyle = {
+          top: "50%",
+          transform: horizontalStyle.transform
+            ? `${horizontalStyle.transform} translateY(-50%)`
+            : "translateY(-50%)",
+        };
+        transformOriginStyle += "50%";
+        break;
+      case 2:
+        verticalStyle = { bottom: 20 };
+        transformOriginStyle += "100%";
+        break;
+      default:
+        verticalStyle = {};
+        break;
+    }
+
+    var positionStyle = {
+      ...horizontalStyle,
+      ...verticalStyle,
+      ...{ transformOrigin: transformOriginStyle },
+    };
+
     return (
-      <div>
+      <React.Fragment>
         <img alt="" style={{ height: "100%" }} />
         <video
           ref={(video) => {
@@ -505,8 +755,19 @@ class App extends React.Component {
         <ul
           id="statusList"
           style={{
-            display: this.statusList.statusList.length === 0 ? "none" : "block",
-            transform: `scale(${isHorizontal ? 0.7 : 1})`,
+            ...positionStyle,
+            ...{
+              display:
+                this.statusList.statusList.length === 0 ? "none" : "block",
+              transform: `${
+                positionStyle.transform ? `${positionStyle.transform} ` : ""
+              }scale(${this.state.scale})`,
+              backgroundColor:
+                this.state.backgroundColor +
+                Math.floor((255 * this.state.backgroundTransparency) / 100)
+                  .toString(16)
+                  .padStart(2, "0"),
+            },
           }}
         >
           {this.statusList.getDiv()}
@@ -516,8 +777,14 @@ class App extends React.Component {
           toggleCamera={this.toggleCamera.bind(this)}
           switchCamera={this.switchCamera.bind(this)}
           statusList={this.statusList}
+          setState={this.setState.bind(this)}
+          scale={this.state.scale}
+          vertical={this.state.vertical}
+          horizontal={this.state.horizontal}
+          backgroundColor={this.state.backgroundColor}
+          backgroundTransparency={this.state.backgroundTransparency}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
