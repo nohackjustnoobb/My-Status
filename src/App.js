@@ -1,14 +1,5 @@
 import "./App.css";
 import React from "react";
-import Icon from "@mdi/react";
-import {
-  mdiMenu,
-  mdiCloseCircleOutline,
-  mdiCameraFlipOutline,
-  mdiMagnifyPlusOutline,
-  mdiMagnifyMinusOutline,
-  mdiBackupRestore,
-} from "@mdi/js";
 import ProgressBar from "progressbar.js";
 import "../node_modules/@mdi/font/css/materialdesignicons.min.css";
 
@@ -21,15 +12,40 @@ var roundX = function (val, precision) {
   );
 };
 
+function upperLetter(str) {
+  const arr = str.split(" ");
+  for (var i = 0; i < arr.length; i++) {
+    arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
+  }
+  return arr.join(" ");
+}
+
+function Icon({ name, size = 1, color, onClick, style = {} }) {
+  return (
+    <span
+      className={`mdi ${name}`}
+      onClick={onClick}
+      style={{
+        ...{
+          fontSize: 24 * size,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        ...(color ? { color: color } : {}),
+        ...style,
+      }}
+    />
+  );
+}
+
 class Status {
   constructor(
     id,
     progress = roundX(Math.random(), 2),
     color = "#" + (((1 << 24) * Math.random()) | 0).toString(16),
     name = "New Status",
-    icon = Object.keys(icons)[
-      Math.floor(Math.random() * Object.keys(icons).length)
-    ]
+    icon = icons[Math.floor(Math.random() * icons.length)]
   ) {
     this.id = id;
     this.progress = progress;
@@ -110,7 +126,7 @@ class StatusList {
     return this.statusList.map((v) => (
       <li style={{ display: "flex" }}>
         <Icon
-          path={icons[v.icon]}
+          name={v.icon}
           size={1.5}
           color={v.color}
           style={{ opacity: 0.8 }}
@@ -185,25 +201,43 @@ class StatusList {
             />
           </div>
           <div className={"inputGroup"}>
-            Icon:
             <div className={"inputGroup"}>
-              <Icon
-                path={icons[v.icon]}
-                size={1.5}
-                style={{ marginRight: 5 }}
-              />
-              <select
-                value={v.icon}
-                onChange={(e) => {
-                  v.icon = e.target.value;
-                  this.save();
-                  this.forceUpdate();
-                }}
-              >
-                {Object.keys(icons).map((v) => (
-                  <option value={v}>{v}</option>
-                ))}
-              </select>
+              Icon: <Icon name={v.icon} size={1.5} style={{ marginRight: 5 }} />
+            </div>
+            <div className={"inputGroup"}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <input
+                  value={v.icon}
+                  onChange={(e) => {
+                    v.icon = e.target.value;
+                    this.save();
+                    this.forceUpdate();
+                  }}
+                />
+                <select
+                  value={icons.find((e) => e === v.icon) ? v.icon : "other"}
+                  onChange={(e) => {
+                    var value = e.target.value;
+
+                    if (value !== "other") {
+                      v.icon = value;
+                      this.save();
+                      this.forceUpdate();
+                    } else {
+                      alert(
+                        'Visit https://pictogrammers.github.io/@mdi/font/6.5.95/ for more icon.\n\nPaste the icon name at the above input.\n(Icon name should like "mdi-icon-name")'
+                      );
+                    }
+                  }}
+                >
+                  {icons.map((v) => (
+                    <option value={v}>
+                      {upperLetter(v.replaceAll("-", " ")).slice(4)}
+                    </option>
+                  ))}
+                  <option value={"other"}>Other</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -291,7 +325,7 @@ class Controller extends React.Component {
             if (this.state.timeout < 3) this.toggleController();
           }}
         >
-          <Icon path={mdiMenu} size={2.25} color="white" />
+          <Icon name="mdi-menu" size={2.25} color="white" />
         </div>
         <div
           id="controller"
@@ -321,7 +355,7 @@ class Controller extends React.Component {
             }}
           >
             <Icon
-              path={mdiCloseCircleOutline}
+              name={"mdi-close-circle-outline"}
               size={1.5}
               color="plum"
               style={{ position: "absolute", right: 10, top: 10 }}
@@ -377,8 +411,9 @@ class Controller extends React.Component {
                     />
                   </div>
                   <Icon
-                    path={mdiCameraFlipOutline}
+                    name="mdi-camera-flip-outline"
                     size={1}
+                    style={{ marginRight: 10 }}
                     color="plum"
                     onClick={this.props.switchCamera}
                   />
@@ -440,9 +475,9 @@ class Controller extends React.Component {
                   <div>
                     <b>Size: x{this.props.scale}</b>
                   </div>
-                  <div>
+                  <div style={{ display: "flex" }}>
                     <Icon
-                      path={mdiMagnifyMinusOutline}
+                      name="mdi-magnify-minus-outline"
                       size={1.25}
                       style={{ marginRight: 5 }}
                       color={this.props.scale > 0.5 ? "plum" : "Grey"}
@@ -459,9 +494,8 @@ class Controller extends React.Component {
                       }}
                     />
                     <Icon
-                      path={mdiBackupRestore}
+                      name="mdi-backup-restore"
                       size={1.25}
-                      color="plum"
                       style={{ marginRight: 5 }}
                       onClick={() => {
                         var defaultScale =
@@ -473,7 +507,7 @@ class Controller extends React.Component {
                       }}
                     />
                     <Icon
-                      path={mdiMagnifyPlusOutline}
+                      name="mdi-magnify-plus-outline"
                       size={1.25}
                       color={this.props.scale < 2 ? "plum" : "Grey"}
                       onClick={() => {
