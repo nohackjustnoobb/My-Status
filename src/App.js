@@ -10,8 +10,8 @@ import {
   mdiBackupRestore,
 } from "@mdi/js";
 import ProgressBar from "progressbar.js";
+import "../node_modules/@mdi/font/css/materialdesignicons.min.css";
 
-import { version, name } from "../package.json";
 import icons from "./icons";
 
 var roundX = function (val, precision) {
@@ -340,6 +340,7 @@ class Controller extends React.Component {
               }}
             />
             <div id="optionsContent">
+              <span class="mdi mdi-home" />
               <ul>
                 <li>
                   <b>Use Image:</b>
@@ -596,7 +597,8 @@ class Controller extends React.Component {
                 >
                   <p>
                     <a href="https://github.com/nohackjustnoobb/My-Status">
-                      {name} Ver {version}
+                      {process.env.REACT_APP_NAME} Ver{" "}
+                      {process.env.REACT_APP_VERSION}
                     </a>
                     <br />
                     nohackjustnoobb@github.com
