@@ -688,27 +688,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.statusList.update();
-    const { newVersionAvailable } = this.state;
-    serviceWorker.register({ onUpdate: this.onServiceWorkerUpdate });
-
-    if (newVersionAvailable) {
-      this.updateServiceWorker();
-    }
   }
-
-  onServiceWorkerUpdate = (registration) => {
-    this.setState({
-      waitingWorker: registration && registration.waiting,
-      newVersionAvailable: true,
-    });
-  };
-
-  updateServiceWorker = () => {
-    const { waitingWorker } = this.state;
-    waitingWorker && waitingWorker.postMessage({ type: "SKIP_WAITING" });
-    this.setState({ newVersionAvailable: false });
-    window.location.reload();
-  };
 
   async useCamera() {
     if (navigator.mediaDevices.getUserMedia) {
