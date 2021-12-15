@@ -340,7 +340,6 @@ class Controller extends React.Component {
               }}
             />
             <div id="optionsContent">
-              <span class="mdi mdi-home" />
               <ul>
                 <li>
                   <b>Use Image:</b>
