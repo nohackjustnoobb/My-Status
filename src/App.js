@@ -1,264 +1,8 @@
-import "./App.css";
 import React from "react";
-import ProgressBar from "progressbar.js";
 import "../node_modules/@mdi/font/css/materialdesignicons.min.css";
-import * as serviceWorker from "./serviceWorkerRegistration";
 
-import icons from "./icons";
-
-var roundX = function (val, precision) {
-  return (
-    Math.round(Math.round(val * Math.pow(10, (precision || 0) + 1)) / 10) /
-    Math.pow(10, precision || 0)
-  );
-};
-
-function upperLetter(str) {
-  const arr = str.split(" ");
-  for (var i = 0; i < arr.length; i++) {
-    arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
-  }
-  return arr.join(" ");
-}
-
-function Icon({ name, size = 1, color, onClick, style = {} }) {
-  return (
-    <span
-      className={`mdi ${name}`}
-      onClick={onClick}
-      style={{
-        ...{
-          fontSize: 24 * size,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        },
-        ...(color ? { color: color } : {}),
-        ...style,
-      }}
-    />
-  );
-}
-
-class Status {
-  constructor(
-    id,
-    progress = roundX(Math.random(), 2),
-    color = "#" + (((1 << 24) * Math.random()) | 0).toString(16),
-    name = "New Status",
-    icon = icons[Math.floor(Math.random() * icons.length)]
-  ) {
-    this.id = id;
-    this.progress = progress;
-    this.name = name;
-    this.icon = icon;
-    this.color = color;
-  }
-
-  updateBar() {
-    document.getElementById(`s${this.id}`).innerHTML = "";
-
-    this.line = new ProgressBar.Line(`#s${this.id}`, {
-      strokeWidth: 4,
-      color: this.color,
-      trailColor: "#eee",
-      trailWidth: 0,
-      svgStyle: { width: "100%", height: 12 },
-    });
-    this.line.set(this.progress);
-  }
-}
-
-class StatusList {
-  constructor(forceUpdate) {
-    this.forceUpdate = forceUpdate;
-    this.statusList = [];
-
-    var statusJSON = JSON.parse(window.localStorage.getItem("status"));
-    if (statusJSON) {
-      statusJSON.forEach((v, i) =>
-        this.statusList.push(new Status(i, v.progress, v.color, v.name, v.icon))
-      );
-    }
-  }
-
-  save() {
-    var statusJSON = [];
-    this.statusList.forEach((v) =>
-      statusJSON.push({
-        progress: v.progress,
-        name: v.name,
-        icon: v.icon,
-        color: v.color,
-      })
-    );
-    window.localStorage.setItem("status", JSON.stringify(statusJSON));
-  }
-
-  addStatus(status) {
-    if (!this.statusList.find((v) => v.id === status.id)) {
-      this.statusList.push(status);
-    }
-  }
-
-  removeStatus(ID) {
-    this.statusList = this.statusList.filter((v) => v.id !== ID);
-    this.save();
-  }
-
-  createStatus() {
-    var id = this.statusList.length;
-    // eslint-disable-next-line no-loop-func
-    while (this.statusList.find((v) => v.id === id)) {
-      id++;
-    }
-    var newStatus = new Status(id);
-    this.addStatus(newStatus);
-    this.forceUpdate(() => newStatus.updateBar());
-    this.save();
-  }
-
-  clearStatus() {
-    this.statusList = [];
-    this.forceUpdate();
-  }
-
-  getDiv() {
-    return this.statusList.map((v) => (
-      <li style={{ display: "flex" }}>
-        <Icon
-          name={v.icon}
-          size={1.5}
-          color={v.color}
-          style={{ opacity: 0.8 }}
-        />
-        <div style={{ marginLeft: 10 }}>
-          <h4 style={{ color: v.color }}>{v.name}</h4>
-          <div id={`s${v.id}`} style={{ opacity: 0.6 }} />
-        </div>
-      </li>
-    ));
-  }
-
-  update() {
-    this.statusList.forEach((v) => v.updateBar());
-  }
-
-  getOptionsDiv() {
-    return this.statusList.map((v) => (
-      <li style={{ width: "100%" }}>
-        <div className={"inputGroup"} style={{ fontWeight: "bold" }}>
-          #{v.id}
-          <input
-            type={"text"}
-            value={v.name}
-            onChange={(e) => {
-              v.name = e.target.value;
-              this.save();
-              this.forceUpdate();
-            }}
-          />
-        </div>
-        <div style={{ fontSize: 16 }}>
-          <div className={"inputGroup"}>
-            Percentage:
-            <div className={"inputGroup"}>
-              <input
-                type={"range"}
-                min={0}
-                max={100}
-                value={v.progress * 100}
-                onChange={(e) => {
-                  v.progress = Number(e.target.value) / 100;
-                  this.save();
-                  this.forceUpdate();
-                }}
-              />
-              <input
-                type={"number"}
-                min={0}
-                max={100}
-                value={v.progress * 100}
-                onChange={(e) => {
-                  var value = Number(e.target.value);
-                  v.progress =
-                    (value > 100 ? 100 : value < 0 ? 0 : value) / 100;
-                  this.save();
-                  this.forceUpdate();
-                }}
-              />
-            </div>
-          </div>
-          <div className={"inputGroup"}>
-            Color:
-            <input
-              type={"color"}
-              value={v.color}
-              onChange={(e) => {
-                v.color = e.target.value;
-                this.save();
-                this.forceUpdate();
-              }}
-            />
-          </div>
-          <div className={"inputGroup"}>
-            <div className={"inputGroup"}>
-              Icon: <Icon name={v.icon} size={1.5} style={{ marginRight: 5 }} />
-            </div>
-            <div className={"inputGroup"}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <input
-                  value={v.icon}
-                  onChange={(e) => {
-                    v.icon = e.target.value;
-                    this.save();
-                    this.forceUpdate();
-                  }}
-                />
-                <select
-                  value={icons.find((e) => e === v.icon) ? v.icon : "other"}
-                  onChange={(e) => {
-                    var value = e.target.value;
-
-                    if (value !== "other") {
-                      v.icon = value;
-                      this.save();
-                      this.forceUpdate();
-                    } else {
-                      alert(
-                        'Visit https://pictogrammers.github.io/@mdi/font/6.5.95/ for more icon.\n\nPaste the icon name at the above input.\n(Icon name should like "mdi-icon-name")'
-                      );
-                    }
-                  }}
-                >
-                  {icons.map((v) => (
-                    <option value={v}>
-                      {upperLetter(v.replaceAll("-", " ")).slice(4)}
-                    </option>
-                  ))}
-                  <option value={"other"}>Other</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button
-          style={{
-            position: "relative",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-          onClick={() => {
-            this.removeStatus(v.id);
-            this.forceUpdate();
-          }}
-        >
-          Remove
-        </button>
-      </li>
-    ));
-  }
-}
+import "./App.css";
+import { StatusList, Icon } from "./classes";
 
 class Controller extends React.Component {
   constructor(props) {
@@ -474,7 +218,9 @@ class Controller extends React.Component {
                   }}
                 >
                   <div>
-                    <b>Size: x{this.props.scale}</b>
+                    <b>
+                      Size: <i>x{this.props.scale}</i>
+                    </b>
                   </div>
                   <div style={{ display: "flex" }}>
                     <Icon
@@ -591,6 +337,66 @@ class Controller extends React.Component {
                   </div>
                 </li>
                 {this.splitLine()}
+                <li
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <b>Profile:</b>{" "}
+                    <input
+                      value={this.props.statusList.name}
+                      onChange={(e) => {
+                        var newName = e.target.value;
+                        if (
+                          !this.props.profileName.find((v) => v === newName) &&
+                          newName !== ""
+                        ) {
+                          this.props.changeProfileName(
+                            this.props.statusList.name,
+                            newName
+                          );
+                        }
+                      }}
+                      type={"text"}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                    }}
+                  >
+                    <Icon
+                      name={"mdi-plus"}
+                      size={1.25}
+                      onClick={() => this.props.createProfile()}
+                    />
+                    <Icon
+                      name={"mdi-minus"}
+                      size={1.25}
+                      color={
+                        this.props.profileName.length > 1 ? "plum" : "Grey"
+                      }
+                      onClick={() => {
+                        if (this.props.profileName.length > 1) {
+                          this.props.deleteProfile(this.props.statusList.name);
+                        }
+                      }}
+                    />
+                    <select
+                      value={this.props.statusList.name}
+                      onChange={(e) => this.props.changeProfile(e.target.value)}
+                    >
+                      {this.props.profileName.map((v) => (
+                        <option value={v}>{v}</option>
+                      ))}
+                    </select>
+                  </div>
+                </li>
+                {this.splitLine()}
+
                 <li>
                   <ul
                     style={{
@@ -651,7 +457,21 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.faceEnv = true;
-    this.statusList = new StatusList(this.forceUpdate.bind(this));
+
+    var statusListString = window.localStorage.getItem("StatusList");
+
+    if (statusListString) {
+      var statusListJSON = JSON.parse(statusListString);
+      this.statusList = statusListJSON.map(
+        (v) =>
+          new StatusList(this.forceUpdate.bind(this), this.save.bind(this), v)
+      );
+    } else {
+      this.statusList = [
+        new StatusList(this.forceUpdate.bind(this), this.save.bind(this)),
+      ];
+    }
+
     var scale = Number(window.localStorage.getItem("scale"));
     var horizontal = Number(window.localStorage.getItem("horizontal"));
     var vertical = Number(window.localStorage.getItem("vertical"));
@@ -662,32 +482,88 @@ class App extends React.Component {
 
     this.state = {
       useCamera: false,
-      scale: scale ? scale : window.innerHeight > window.innerWidth ? 0.75 : 1,
+      scale: scale || window.innerHeight > window.innerWidth ? 0.75 : 1,
       // horizontal
       // 0: Left
       // 1: Center
       // 2: Right
-      horizontal: horizontal ? horizontal : 0,
+      horizontal: horizontal || 0,
       // vertical
       // 0: Top
       // 1: Center
       // 2: Bottom
-      vertical: vertical ? vertical : 0,
-      backgroundColor: backgroundColor ? backgroundColor : "#000000",
-      backgroundTransparency: backgroundTransparency
-        ? backgroundTransparency
-        : 33,
+      vertical: vertical || 0,
+      backgroundColor: backgroundColor || "#000000",
+      backgroundTransparency: backgroundTransparency || 33,
       waitingWorker: {},
       newVersionAvailable: false,
+      statusProfile: this.statusList[0],
     };
   }
 
   componentDidUpdate() {
-    this.statusList.update();
+    this.state.statusProfile.update();
   }
 
   componentDidMount() {
-    this.statusList.update();
+    this.state.statusProfile.update();
+  }
+
+  save() {
+    var statusListJSON = [];
+    this.statusList.forEach((v) => {
+      var statusJSON = [];
+      v.statusList.forEach((_) =>
+        statusJSON.push({
+          progress: _.progress,
+          name: _.name,
+          icon: _.icon,
+          color: _.color,
+        })
+      );
+      statusListJSON.push({ name: v.name, values: statusJSON });
+    });
+    window.localStorage.setItem("StatusList", JSON.stringify(statusListJSON));
+  }
+
+  createProfile() {
+    var nameIndex = 0;
+
+    // eslint-disable-next-line no-loop-func
+    while (this.statusList.find((v) => v.name === `New Profile ${nameIndex}`)) {
+      nameIndex++;
+    }
+
+    var newProfile = new StatusList(
+      this.forceUpdate.bind(this),
+      this.save.bind(this),
+      { name: `New Profile ${nameIndex}` }
+    );
+    this.statusList.push(newProfile);
+    this.setState({ statusProfile: newProfile });
+    this.save();
+  }
+
+  deleteProfile(name) {
+    this.statusList = this.statusList.filter((v) => v.name !== name);
+    this.setState({
+      statusProfile: this.statusList[this.statusList.length - 1],
+    });
+    this.save();
+  }
+
+  changeProfile(name) {
+    this.setState({
+      statusProfile: this.statusList.find((v) => {
+        return v.name === name;
+      }),
+    });
+  }
+
+  changeProfileName(name, newName) {
+    this.statusList.find((v) => v.name === name).name = newName;
+    this.forceUpdate();
+    this.save();
   }
 
   async useCamera() {
@@ -796,7 +672,9 @@ class App extends React.Component {
             ...positionStyle,
             ...{
               display:
-                this.statusList.statusList.length === 0 ? "none" : "block",
+                this.state.statusProfile.statusList.length === 0
+                  ? "none"
+                  : "block",
               transform: `${
                 positionStyle.transform ? `${positionStyle.transform} ` : ""
               }scale(${this.state.scale})`,
@@ -808,14 +686,19 @@ class App extends React.Component {
             },
           }}
         >
-          {this.statusList.getDiv()}
+          {this.state.statusProfile.getDiv()}
         </ul>
         <Controller
-          useCamera={this.state.useCamera}
           toggleCamera={this.toggleCamera.bind(this)}
           switchCamera={this.switchCamera.bind(this)}
-          statusList={this.statusList}
           setState={this.setState.bind(this)}
+          changeProfile={this.changeProfile.bind(this)}
+          changeProfileName={this.changeProfileName.bind(this)}
+          deleteProfile={this.deleteProfile.bind(this)}
+          createProfile={this.createProfile.bind(this)}
+          profileName={this.statusList.map((v) => v.name)}
+          useCamera={this.state.useCamera}
+          statusList={this.state.statusProfile}
           scale={this.state.scale}
           vertical={this.state.vertical}
           horizontal={this.state.horizontal}
@@ -828,3 +711,4 @@ class App extends React.Component {
 }
 
 export default App;
+export { Icon };
