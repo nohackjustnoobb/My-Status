@@ -20,8 +20,7 @@ class Controller extends React.Component {
         this.setState({ timeout: this.state.timeout + 1 });
       }
     }, 1000);
-    document.getElementsByTagName("body")[0].onmousemove =
-      this.resetTimeout.bind(this);
+    document.body.onmousemove = this.resetTimeout.bind(this);
   }
 
   resetTimeout() {
@@ -497,7 +496,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.state.statusProfile.update();
-    window.onorientationchange = this.forceUpdate.bind(this);
+    document.body.onresize = () => this.forceUpdate();
   }
 
   save() {
