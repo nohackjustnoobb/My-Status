@@ -1,7 +1,8 @@
 import React from "react";
-import "../node_modules/@mdi/font/css/materialdesignicons.min.css";
 
+import "../node_modules/@mdi/font/css/materialdesignicons.min.css";
 import "./App.css";
+
 import { StatusList, Icon } from "./classes";
 
 class Controller extends React.Component {
@@ -87,18 +88,7 @@ class Controller extends React.Component {
             }}
             onClick={this.toggleController.bind(this)}
           />
-          <div
-            style={{
-              position: "relative",
-              backgroundColor: "#fff",
-              maxWidth: 500,
-              maxHeight: 700,
-              width: "80%",
-              height: "80%",
-              borderRadius: 20,
-              padding: 20,
-            }}
-          >
+          <div id="options">
             <Icon
               name={"mdi-close-circle-outline"}
               size={1.5}
@@ -507,6 +497,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.state.statusProfile.update();
+    window.onorientationchange = this.forceUpdate.bind(this);
   }
 
   save() {
@@ -656,7 +647,10 @@ class App extends React.Component {
 
     return (
       <React.Fragment>
-        <img alt="" style={{ height: "100%" }} />
+        <img
+          alt=""
+          style={isHorizontal ? { height: "100%" } : { width: "100%" }}
+        />
         <video
           ref={(video) => {
             this.video = video;

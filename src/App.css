@@ -50,6 +50,23 @@ img {
   align-items: center;
 }
 
+#options {
+  position: relative;
+  background-color: #fff;
+  max-width: 500px;
+  max-height: 700px;
+  width: 80%;
+  height: 80%;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+#optionsContent {
+  height: 97%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
@@ -82,12 +99,6 @@ svg {
   border-radius: 20px;
   padding-bottom: 0;
   width: fit-content;
-}
-
-#optionsContent {
-  height: 97%;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .inputGroup {
