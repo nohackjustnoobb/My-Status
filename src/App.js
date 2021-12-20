@@ -38,6 +38,7 @@ class Controller extends React.Component {
       element.src = URL.createObjectURL(file);
     } else {
       element.style.display = "none";
+      this.props.forceUpdate();
     }
   }
 
@@ -150,6 +151,18 @@ class Controller extends React.Component {
                     style={{ marginRight: 10 }}
                     color="plum"
                     onClick={this.props.switchCamera}
+                  />
+                </li>
+                <li>
+                  <b>Fit To Srceen: </b>
+                  <input
+                    type="checkbox"
+                    onChange={() =>
+                      this.props.setState({ isFit: !this.props.isFit }, () =>
+                        setTimeout(() => this.props.forceUpdate(), 100)
+                      )
+                    }
+                    checked={this.props.isFit}
                   />
                 </li>
                 {this.splitLine()}
@@ -487,6 +500,7 @@ class App extends React.Component {
       waitingWorker: {},
       newVersionAvailable: false,
       statusProfile: this.statusList[0],
+      isFit: true,
     };
   }
 
@@ -495,8 +509,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.state.statusProfile.update();
     document.body.onresize = () => this.forceUpdate();
+    this.state.statusProfile.update();
+    this.forceUpdate();
   }
 
   save() {
@@ -562,19 +577,19 @@ class App extends React.Component {
         video: { facingMode: this.faceEnv ? "environment" : "user" },
       });
       this.video.style.display = "block";
-      this.setState({ useCamera: true });
       if ("srcObject" in this.video) {
         this.video.srcObject = this.stream;
       } else {
         this.video.src = URL.createObjectURL(this.stream);
       }
+      this.setState({ useCamera: true });
     }
   }
 
   async closeCamera() {
     this.video.style.display = "none";
-    this.setState({ useCamera: false });
     if (this.stream) this.stream.getTracks().forEach((track) => track.stop());
+    this.setState({ useCamera: false });
   }
 
   async toggleCamera() {
@@ -590,11 +605,27 @@ class App extends React.Component {
   render() {
     var isHorizontal = window.innerHeight > window.innerWidth;
 
+    var root = document.getElementById("root");
+
+    var bg = document.getElementsByTagName("img")[0];
+    if (bg?.style?.display === "none") {
+      bg = document.getElementsByTagName("video")[0];
+    }
+
+    var isShow = bg?.style.display !== "none";
+
+    var offsetSize = {
+      height: (root.offsetHeight - bg?.offsetHeight) / 2,
+      width: (root.offsetWidth - bg?.offsetWidth) / 2,
+    };
+
     var horizontalStyle, verticalStyle, transformOriginStyle;
 
     switch (this.state.horizontal) {
       case 0:
-        horizontalStyle = { left: 20 };
+        horizontalStyle = {
+          left: 20 + (this.state.isFit && isShow ? offsetSize.width : 0),
+        };
         transformOriginStyle = "0%";
         break;
       case 1:
@@ -605,7 +636,9 @@ class App extends React.Component {
         transformOriginStyle = "50%";
         break;
       case 2:
-        horizontalStyle = { right: 20 };
+        horizontalStyle = {
+          right: 20 + (this.state.isFit && isShow ? offsetSize.width : 0),
+        };
         transformOriginStyle = "100%";
         break;
       default:
@@ -617,7 +650,12 @@ class App extends React.Component {
 
     switch (this.state.vertical) {
       case 0:
-        verticalStyle = { top: "env(safe-area-inset-top)" };
+        verticalStyle = {
+          top:
+            this.state.isFit && isShow
+              ? offsetSize.height
+              : " env(safe-area-inset-top)",
+        };
         transformOriginStyle += "0%";
         break;
       case 1:
@@ -630,7 +668,9 @@ class App extends React.Component {
         transformOriginStyle += "50%";
         break;
       case 2:
-        verticalStyle = { bottom: 20 };
+        verticalStyle = {
+          bottom: 20 + (this.state.isFit && isShow ? offsetSize.height : 0),
+        };
         transformOriginStyle += "100%";
         break;
       default:
@@ -648,16 +688,32 @@ class App extends React.Component {
       <React.Fragment>
         <img
           alt=""
-          style={isHorizontal ? { height: "100%" } : { width: "100%" }}
+          style={{
+            ...(this.state.isFit
+              ? { maxHeight: "100%", maxWidth: "100%" }
+              : isHorizontal
+              ? { height: "100%" }
+              : { width: "100%" }),
+            ...{ display: "none" },
+          }}
+          onLoad={() => this.forceUpdate()}
         />
         <video
           ref={(video) => {
             this.video = video;
           }}
+          onLoadedData={() => this.forceUpdate()}
           controls={false}
           autoPlay
           playsInline
-          style={isHorizontal ? { height: "100%" } : { width: "100%" }}
+          style={{
+            ...(this.state.isFit
+              ? { maxHeight: "100%", maxWidth: "100%" }
+              : isHorizontal
+              ? { height: "100%" }
+              : { width: "100%" }),
+            ...{ display: "none" },
+          }}
         />
         <ul
           id="statusList"
@@ -689,8 +745,10 @@ class App extends React.Component {
           changeProfileName={this.changeProfileName.bind(this)}
           deleteProfile={this.deleteProfile.bind(this)}
           createProfile={this.createProfile.bind(this)}
+          forceUpdate={this.forceUpdate.bind(this)}
           profileName={this.statusList.map((v) => v.name)}
           useCamera={this.state.useCamera}
+          isFit={this.state.isFit}
           statusList={this.state.statusProfile}
           scale={this.state.scale}
           vertical={this.state.vertical}

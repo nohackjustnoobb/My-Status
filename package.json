@@ -1,6 +1,6 @@
 {
   "name": "My-Status",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "private": true,
   "dependencies": {
     "@mdi/font": "^6.5.95",
