@@ -4,7 +4,7 @@ import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
 import App from "./App";
 
-/* Still Working
+// Still Working
 import Instruction from "./Instruction";
 
 const installed =
@@ -15,12 +15,12 @@ const installed =
   window.matchMedia("(display-mode: standalone)").matches;
 
 ReactDOM.render(
-  installed ? <App /> : <Instruction />,
+  // remove this when finish
+  installed || true ? <App /> : <Instruction />,
   document.getElementById("root")
 );
-*/
 
-ReactDOM.render(<App />, document.getElementById("root"));
+// ReactDOM.render(<App />, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
